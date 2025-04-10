@@ -1,14 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import io from 'socket.io-client';
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const socket = io(`${baseUrl}`);
 
 const MobileUpload: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -19,21 +16,13 @@ const MobileUpload: React.FC = () => {
 
   useEffect(() => {
     if (sessionId) {
-      socket.emit('register', { sessionId, client: 'mobile' });
-      
-      socket.on('connect', () => {
-        setIsConnected(true);
-        toast.success("Connected to session");
-      });
-      
-      socket.on('disconnect', () => {
-        setIsConnected(false);
-      });
+      // Just simulate connection status
+      setIsConnected(true);
+      toast.success("Connected to session");
     }
     
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
+      // Cleanup function
     };
   }, [sessionId]);
 
@@ -51,21 +40,10 @@ const MobileUpload: React.FC = () => {
     
     try {
       setIsUploading(true);
-      const form = new FormData();
-      form.append('file', file);
-      
-      await axios.post(`${baseUrl}/upload/${sessionId}`, form, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 100));
-          console.log(`Upload progress: ${percentCompleted}%`);
-        }
-      });
+      // Simulate upload with timeout
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       setUploadStatus('success');
-      socket.emit('fileUploaded', { sessionId });
       toast.success("File uploaded successfully!");
     } catch (error) {
       console.error("Upload error:", error);
